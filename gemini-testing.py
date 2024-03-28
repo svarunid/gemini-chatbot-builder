@@ -7,17 +7,19 @@ app = marimo.App()
 @app.cell
 def __():
     import os
+    import marimo as mo
     import google.generativeai as ggenai
 
     # Configure API key
     ggenai.configure(api_key=os.environ["GEMINI_KEY"])
-    return ggenai, os
+    return ggenai, mo, os
 
 
 @app.cell
 def __(ggenai):
     # Set model configurations
     generation_config = ggenai.GenerationConfig(
+        # candidate_count=2,
         temperature=0.4,
         top_k=10,
     )
@@ -42,9 +44,9 @@ def __():
 
 @app.cell
 def __(content_type, context):
-    prompt = \
+    template_prompt = \
     f"""\
-    You are an expert content writer who writes content for purposes of creating interactive web pages and for marketing. You task is to write whatsapp {content_type} content based on the context enclosed withing double quotes. Include call to action options or buttons the user could interact with by clicking, so that when clicked it proceeds to direct converstion accordingly.
+    You are an expert content writer who writes content for purposes of creating interactive chatbot and for marketing. You task is to write whatsapp {content_type} content based on the context enclosed withing double quotes. Include interactive buttons the user could interact with by clicking.
 
     "{context}"
 
@@ -58,7 +60,7 @@ def __(content_type, context):
         footer: string 
     }}
 
-    Limit the header to 60 characters, message to 1024 charaters and footer to 60 characters.
+    Limit the header to 60 characters, message to 1024 charaters and footer to 60 characters. You can also include emojis, but only in the header and message.
 
     Refer the examples below for the idea:
 
@@ -77,18 +79,66 @@ def __(content_type, context):
         "footer": "We look forward to connecting with you and shaping the future of software together."
     }}
     """
-    return prompt,
+    return template_prompt,
 
 
 @app.cell
-def __(model, prompt):
-    response = model.generate_content(prompt)
-    return response,
+def __(model, template_prompt):
+    template_response = model.generate_content(template_prompt)
+    return template_response,
 
 
 @app.cell
-def __(response):
-    response.candidates[0].content.parts[0].text
+def __(template_response):
+    template_response.candidates[0].content.parts[0].text
+    return
+
+
+@app.cell
+def __(template_response):
+    template_content = template_response.candidates[0].content.parts[0].text
+    return template_content,
+
+
+@app.cell
+def __(content_type, template_content):
+    interative_prompt = \
+    f"""\
+    You are an expert content writer who writes content for purposes of creating interactive chatbot and for marketing. Below is a {content_type} content written by you in JSON format.
+
+    Content:
+    {template_content}
+
+    The `buttons` is an array of quick reply options the user can interact with. Generate a follow up content for each of the quick reply options. The follow up message can include more action button the user can interact with buton include them only when necessary. Remember the buttons are just meant for quick reply, they can't be used to navigate to another page or open a form. Avoid duplicating/nesting the buttons. Format output in JSON based on the below template and limit the header to 60 characters, message to 1024 charaters and footer to 60 characters. The template is a JSON obejct describe the key and the type of value contained in each key.
+
+    Template:
+    {{
+        button_1: {{
+            header: string, 
+            message: string, 
+            buttons: array[string], 
+            footer: string
+        }},
+        button_2: {{
+            header: string, 
+            message: string, 
+            buttons: array[string], 
+            footer: string
+        }}
+    }}
+    """
+    return interative_prompt,
+
+
+@app.cell
+def __(interative_prompt, model):
+    interactive_response = model.generate_content(interative_prompt)
+    return interactive_response,
+
+
+@app.cell
+def __(interactive_response):
+    interactive_response.candidates[0].content.parts[0].text
     return
 
 
