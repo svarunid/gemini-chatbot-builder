@@ -17,19 +17,19 @@ def __():
 
 @app.cell
 def __(ggenai):
-    # Set model configurations
-    generation_config = ggenai.GenerationConfig(
+    # Set template model configurations
+    template_config = ggenai.GenerationConfig(
         # candidate_count=2,
         temperature=0.4,
         top_k=10,
     )
 
-    # Initialize the model
-    model = ggenai.GenerativeModel(
+    # Initialize the template model
+    template_model = ggenai.GenerativeModel(
         model_name="gemini-1.0-pro",
-        generation_config=generation_config
+        generation_config=template_config
     )
-    return generation_config, model
+    return template_config, template_model
 
 
 @app.cell
@@ -83,8 +83,8 @@ def __(content_type, context):
 
 
 @app.cell
-def __(model, template_prompt):
-    template_response = model.generate_content(template_prompt)
+def __(template_model, template_prompt):
+    template_response = template_model.generate_content(template_prompt)
     return template_response,
 
 
@@ -101,15 +101,41 @@ def __(template_response):
 
 
 @app.cell
-def __(content_type, template_content):
+def __(ggenai):
+    # Set template model configurations
+    interactive_config = ggenai.GenerationConfig(
+        # candidate_count=2,
+        temperature=0.6,
+        top_k=30,
+    )
+
+    # Initialize the template model
+    interactive_model = ggenai.GenerativeModel(
+        model_name="gemini-1.0-pro",
+        generation_config=interactive_config
+    )
+    return interactive_config, interactive_model
+
+
+@app.cell
+def __(content_type):
     interative_prompt = \
     f"""\
     You are an expert content writer who writes content for purposes of creating interactive chatbot and for marketing. Below is a {content_type} content written by you in JSON format.
 
     Content:
-    {template_content}
+    {{
+        "header": "Introducing AskEVA: Your Software Solution Partner",
+        "message": "Greetings! \n\nWe are thrilled to announce that AskEVA, a leading software company, is moving towards its phase 2 launch. We invite you to join us for an exclusive demo session to experience firsthand how our innovative solutions can empower your business.\n\nOur team of experts will guide you through our cutting-edge software, showcasing its capabilities and how it can transform your operations. Whether you're looking to streamline processes, enhance productivity, or gain a competitive edge, AskEVA has the solution for you.\n\nDon't miss this opportunity to discover the future of software. Book your demo today and let us help you unlock the full potential of your business.",
+        "buttons": [
+            "Book a demo",
+            "Enquire us",
+            "Contact us"
+        ],
+        "footer": "We look forward to connecting with you and shaping the future of software together."
+    }}
 
-    The `buttons` is an array of quick reply options the user can interact with. Generate a follow up content for each of the quick reply options. The follow up message can include more action button the user can interact with buton include them only when necessary. Remember the buttons are just meant for quick reply, they can't be used to navigate to another page or open a form. Avoid duplicating/nesting the buttons. Format output in JSON based on the below template and limit the header to 60 characters, message to 1024 charaters and footer to 60 characters. The template is a JSON obejct describe the key and the type of value contained in each key.
+    The `buttons` is an array of quick reply options the user can interact with. Generate a follow up content for each of the quick reply options. The follow up message can include more action buttons the user can interact with. Include buttons only when necessary. Avoid duplicating/nesting the buttons. Format output in JSON based on the below template and limit the header to 60 characters, message to 1024 charaters and footer to 60 characters. The template is a JSON obejct describe the key and the type of value contained in each key.
 
     Template:
     {{
@@ -131,8 +157,8 @@ def __(content_type, template_content):
 
 
 @app.cell
-def __(interative_prompt, model):
-    interactive_response = model.generate_content(interative_prompt)
+def __(interactive_model, interative_prompt):
+    interactive_response = interactive_model.generate_content(interative_prompt)
     return interactive_response,
 
 
