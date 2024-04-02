@@ -20,8 +20,8 @@ def __(ggenai):
     # Set template model configurations
     template_config = ggenai.GenerationConfig(
         # candidate_count=2,
-        temperature=0.4,
-        top_k=10,
+        temperature=0.7,
+        top_k=20,
     )
 
     # Initialize the template model
@@ -37,7 +37,7 @@ def __():
     content_type = "marketing"
     context = \
     """\
-    At Mahendra Cars, we are introducing a new model of Thar (jeep type) car with model no. A52. Create a promotional message details it's features like compelling performance, 50 mile mileage, top safety rating, etc. Include interaction buttons: [Get Quote, Book Now].
+    AskEVA is preparing for it's phase 2 launch. It is a whatsapp API based messaging and marketing platform serving various use-cases across industries like E-commerce, Automobiles, Food & Beverages, etc. The version 2 brings in new features like chatbot builder, flow builder etc. Create content to promote the launch among the potential custormers.
     """
     return content_type, context
 
@@ -60,23 +60,29 @@ def __(content_type, context):
         footer: string 
     }}
 
-    Limit the header to 60 characters, message to 1024 charaters and footer to 60 characters. You can also include emojis, but only in the header and message.
+    Limit the header and footer to 60 characters, message to 1024 charaters and button to one or two words. You can also include emojis, but only in the header and message.
 
     Refer the examples below for the idea:
 
     Examples:
-    Context: We are AskEVA, a software company. We are moving towards our phase 2 launch. Create a descriptive marketing message inviting them to a demo session. Add the following buttons: Book a demo, Enquire us, Contact us.
+    Context: At Mahendra Cars, we are introducing a new model of Thar (jeep type) car with model no. A52. Create a promotional message details it's features like compelling performance, 50 mile mileage, top safety rating, etc. Include interaction buttons: [Get Quote, Book Now].
 
     Response: 
     {{
-        "header": "Introducing AskEVA: Your Software Solution Partner",
-        "message": "Greetings! \n\nWe are thrilled to announce that AskEVA, a leading software company, is moving towards its phase 2 launch. We invite you to join us for an exclusive demo session to experience firsthand how our innovative solutions can empower your business.\n\nOur team of experts will guide you through our cutting-edge software, showcasing its capabilities and how it can transform your operations. Whether you're looking to streamline processes, enhance productivity, or gain a competitive edge, AskEVA has the solution for you.\n\nDon't miss this opportunity to discover the future of software. Book your demo today and let us help you unlock the full potential of your business.",
+        "header": "Introducing the All-New Mahindra Thar A52: Unleash Your Adventure",
+        "message": "Get ready to conquer any terrain with the latest addition to our fleet – the Mahindra Thar A52. This rugged beast is engineered to deliver an unparalleled driving experience with its:
+
+    💪 Compelling performance that will leave you craving for more
+    ⛽️ Impressive 50-mile mileage, ensuring you go the distance
+    🛡️ Top safety rating, giving you peace of mind on every journey
+    ⛰️ Unmatched off-road capabilities, ready to tackle any challenge
+
+    Whether you're a seasoned adventurer or a weekend explorer, the Thar A52 is the perfect companion for your next escapade. Don't wait, embrace the thrill today!",
         "buttons": [
-            "Book a demo",
-            "Enquire us",
-            "Contact us"
+            "Get Quote",
+            "Book Now"
         ],
-        "footer": "We look forward to connecting with you and shaping the future of software together."
+        "footer": "Mahendra Cars: Driving Adventure Since 1945"
     }}
     """
     return template_prompt,
@@ -105,8 +111,8 @@ def __(ggenai):
     # Set template model configurations
     interactive_config = ggenai.GenerationConfig(
         # candidate_count=2,
-        temperature=0.6,
-        top_k=30,
+        temperature=0.7,
+        top_k=25,
     )
 
     # Initialize the template model
@@ -118,34 +124,27 @@ def __(ggenai):
 
 
 @app.cell
-def __(content_type):
+def __(content_type, template_content):
     interative_prompt = \
     f"""\
     You are an expert content writer who writes content for purposes of creating interactive chatbot and for marketing. Below is a {content_type} content written by you in JSON format.
 
     Content:
-    {{
-        "header": "Introducing AskEVA: Your Software Solution Partner",
-        "message": "Greetings! \n\nWe are thrilled to announce that AskEVA, a leading software company, is moving towards its phase 2 launch. We invite you to join us for an exclusive demo session to experience firsthand how our innovative solutions can empower your business.\n\nOur team of experts will guide you through our cutting-edge software, showcasing its capabilities and how it can transform your operations. Whether you're looking to streamline processes, enhance productivity, or gain a competitive edge, AskEVA has the solution for you.\n\nDon't miss this opportunity to discover the future of software. Book your demo today and let us help you unlock the full potential of your business.",
-        "buttons": [
-            "Book a demo",
-            "Enquire us",
-            "Contact us"
-        ],
-        "footer": "We look forward to connecting with you and shaping the future of software together."
-    }}
+    {template_content}
 
-    The `buttons` is an array of quick reply options the user can interact with. Generate a follow up content for each of the quick reply options. The follow up message can include more action buttons the user can interact with. Include buttons only when necessary. Avoid duplicating/nesting the buttons. Format output in JSON based on the below template and limit the header to 60 characters, message to 1024 charaters and footer to 60 characters. The template is a JSON obejct describe the key and the type of value contained in each key.
+    The `buttons` is an array of quick reply options the user can interact with. Generate a follow up content for each of the quick reply options. The follow up message can include more action buttons the user can interact with or to collect user information.
+
+    Format output in JSON based on the below template. Limit the header and footer to 60 characters, message to 1024 charaters and button to one or two words. You can also include emojis, but only in the header and message. The template is a JSON obejct describe the key and the type of value contained in each key.
 
     Template:
     {{
-        button_1: {{
+        button 1: {{
             header: string, 
             message: string, 
             buttons: array[string], 
             footer: string
         }},
-        button_2: {{
+        button 2: {{
             header: string, 
             message: string, 
             buttons: array[string], 
