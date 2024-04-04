@@ -1,0 +1,9 @@
+name: d:\projects\wa-chatbot-builder\env
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - marimo=0.3.4
+  - python=3.10
+  - pip:
+      - google-generativeai==0.4.1
